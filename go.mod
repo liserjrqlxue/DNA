@@ -1,4 +1,4 @@
-module DNA
+module github.com/liserjrqlxue/DNA
 
 go 1.23.2
 
