@@ -826,6 +826,7 @@ func (s *Seq) FindNextSegmentPair() bool {
 			return true
 		} else {
 			slog.Debug("Can not find appropriate Midd+Tail Primer, try Segment", "pair.Seq", pair.Seq)
+			s.Message = fmt.Sprintf("无法找到合适的引物对：[%d:%s]", pair.Start, pair.Seq)
 			return false
 		}
 	}
