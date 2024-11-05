@@ -1248,6 +1248,10 @@ func (s *Seq) SegmentSplit(pics int) bool {
 		s.SegmentLeftLimit = len(UniversalUpperPrimer)
 		s.SegmentRightLimit = s.Length - len(UniversalLowerPrimer)
 		if !s.SegmentSplit3() {
+			if s.Length < 2000 {
+				slog.Error("segment split 3 failed, stop for too short sequence", "s.Name", s.Name, "s.Length", s.Length)
+				return false
+			}
 			slog.Warn("segment split 3 failed")
 			s.Hard = false
 			s.SegmentLeftLimit = len(UniversalUpperPrimer)
