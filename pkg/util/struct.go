@@ -38,9 +38,10 @@ type Seq struct {
 	SegmentCohesiveTerminus [][]byte
 	SimplePlusMaxSegment    int
 
-	Name   string
-	RawSeq string
-	Seq    string
+	Name    string
+	RawSeq  string
+	Seq     string
+	Message string
 
 	Length int
 
@@ -1300,7 +1301,7 @@ func (s *Seq) SegmentSplit(pics int) bool {
 		)
 		if !s.Segments[i].SimpleRun() {
 			slog.Error("segment split failed", "i", i, "name", s.Segments[i].Name)
-			log.Fatalf("segment split failed:%d:%s", i, s.Segments[i].Name)
+			return false
 		}
 	}
 	return true
