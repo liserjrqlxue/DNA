@@ -7,6 +7,15 @@ import (
 
 const Grate = 0.8
 
+type CalculateBaseError struct {
+	Name      string    `json:"name"`
+	Sequence  string    `json:"sequence"`
+	AvgYield  float64   `json:"avg_yield"`
+	AvgACC    float64   `json:"avg_acc"`
+	MidACC    float64   `json:"mid_acc"`
+	AvgYields []float64 `json:"avg_yields"`
+}
+
 type Primer struct {
 	Name string `json:"name"`
 	Seq  string `json:"seq"`
@@ -20,6 +29,10 @@ type Primer struct {
 	GC       float64 `json:"gc"`
 	Tm       float64 `json:"tm"`
 	DupGrate float64
+
+	RC bool
+	// calculate base error
+	CBE *CalculateBaseError
 }
 
 // NewPrimer creates a new Primer with the given parameters.
