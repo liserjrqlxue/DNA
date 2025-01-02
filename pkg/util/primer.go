@@ -33,6 +33,9 @@ type Primer struct {
 	RC bool
 	// calculate base error
 	CBE *CalculateBaseError
+
+	// extra info
+	Info map[string]interface{}
 }
 
 // NewPrimer creates a new Primer with the given parameters.
