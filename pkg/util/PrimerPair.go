@@ -27,6 +27,9 @@ type PrimerPair struct {
 	Midd *Primer
 
 	SeqRef *Seq
+
+	// CPs Chemical Primers
+	CPs []*Primer
 }
 
 func (pair *PrimerPair) SetHead(offset int) {
