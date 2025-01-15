@@ -30,6 +30,10 @@ type PrimerPair struct {
 
 	// CPs Chemical Primers
 	CPs []*Primer
+
+	EffectiveSeq       string
+	EffectiveSeqLength int
+	CTs                [3][]byte
 }
 
 func (pair *PrimerPair) SetHead(offset int) {
