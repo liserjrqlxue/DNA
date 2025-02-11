@@ -17,18 +17,6 @@ import (
 	"github.com/liserjrqlxue/goUtil/simpleUtil"
 )
 
-type Feature struct {
-	chr   string
-	start int
-	end   int
-	name  string
-	seq   string
-}
-
-func (f *Feature) String() string {
-	return fmt.Sprintf("%s\t%d\t%d\t%s", f.chr, f.start, f.end, f.name)
-}
-
 type Seq struct {
 	// Segment
 	Start                   int
