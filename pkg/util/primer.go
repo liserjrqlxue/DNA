@@ -1,8 +1,12 @@
 package util
 
 import (
+	"bytes"
+	"encoding/json"
 	"fmt"
+	"log"
 	"math"
+	"net/http"
 )
 
 const Grate = 0.8
@@ -179,4 +183,54 @@ func (p *Primer) CheckLocalRepeat(offset int, repeat []*Feature) bool {
 // 是否unambiguous ACGT
 func (p *Primer) IsUnambiguous() bool {
 	return ACGT.MatchString(p.Seq)
+}
+
+// CalCBE 调用 http://localhost:5000/calculate 计算 util.Primer.CBE
+func (p *Primer) CalCBE() error {
+	var (
+		name     = p.Name
+		sequence = p.Seq
+	)
+	if p.RC {
+		sequence = ReverseComplement(p.Seq)
+	}
+	data := map[string]string{
+		"name":     name,
+		"sequence": sequence,
+	}
+
+	// 序列化请求数据
+	jsonData, err := json.Marshal(data)
+	if err != nil {
+		fmt.Println("Error marshalling JSON:", err)
+		return err
+	}
+
+	// 创建请求
+	req, err := http.NewRequest("POST", CalCBEUrl, bytes.NewBuffer(jsonData))
+	if err != nil {
+		fmt.Println("Error creating request:", err)
+		return err
+	}
+
+	req.Header.Set("Content-Type", "application/json")
+
+	// 发送请求
+	resp, err := Client.Do(req)
+	if err != nil {
+		fmt.Println("Error sending request:", err)
+		return err
+	}
+
+	// 处理响应
+	var result *CalculateBaseError
+	err = json.NewDecoder(resp.Body).Decode(&result)
+	if err != nil {
+		log.Println("Error decoding response:", err)
+		return err
+	} else {
+		p.CBE = result
+	}
+	resp.Body.Close() // 确保关闭响应体以复用连接
+	return nil
 }

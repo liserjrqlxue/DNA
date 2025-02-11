@@ -1,6 +1,10 @@
 package util
 
-import "regexp"
+import (
+	"net/http"
+	"regexp"
+	"time"
+)
 
 // const
 const (
@@ -49,4 +53,17 @@ var (
 var (
 	UniversalUpperPrimer string
 	UniversalLowerPrimer string
+)
+
+var (
+
+	// 创建一个 http.Client，使用自定义的 Transport
+	Client = &http.Client{
+		Transport: &http.Transport{
+			MaxIdleConns:    10,
+			IdleConnTimeout: 30 * time.Second,
+		},
+	}
+
+	CalCBEUrl = "http://localhost:5000/calculate"
 )
