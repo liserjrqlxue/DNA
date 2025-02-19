@@ -33,6 +33,8 @@ type PrimerPair struct {
 
 	EffectiveSeq       string
 	EffectiveSeqLength int
+	EffectiveSeqStart  int
+	EffectiveSeqEnd    int
 	CTs                [3][]byte
 }
 
