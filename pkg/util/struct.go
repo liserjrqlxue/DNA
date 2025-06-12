@@ -1084,7 +1084,7 @@ func (s *Seq) WriteExtraPrimer() {
 
 	// SegmentPrimers
 	{
-		for i, primer := range s.SegmentPrimers {
+		for _, primer := range s.SegmentPrimers {
 			s.PrintPrimer(out, primer)
 		}
 	}
