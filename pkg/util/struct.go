@@ -1033,22 +1033,26 @@ func (s *Seq) Write3pot() {
 	}
 }
 
-func (s *Seq) PrintPrimerS(out *os.File) {
-	var primer = s.PrimerS
+func (s *Seq) PrintPrimer(out *os.File, primer *Primer) {
 	if primer != nil {
 		fmtUtil.Fprintf(out, "%s\t%s\t%s\t%d\t%.2f\n", primer.Name, primer.Seq, s.Name, primer.Length, primer.Tm)
 	} else {
 		fmtUtil.Fprintf(out, "%s-S\t%s\t%s\t\t\n", s.Name, "NULL", s.Name)
+	}
+}
+
+func (s *Seq) PrintPrimerS(out *os.File) {
+	var primer = s.PrimerS
+	s.PrintPrimer(out, primer)
+	if primer == nil {
 		s.Note = append(s.Note, "No -S primer")
 	}
 }
 
 func (s *Seq) PrintPrimerAS(out *os.File) {
 	var primer = s.PrimerAS
-	if primer != nil {
-		fmtUtil.Fprintf(out, "%s\t%s\t%s\t%d\t%.2f\n", primer.Name, primer.Seq, s.Name, primer.Length, primer.Tm)
-	} else {
-		fmtUtil.Fprintf(out, "%s-AS\t%s\t%s\t\t\n", s.Name, "NULL", s.Name)
+	s.PrintPrimer(out, primer)
+	if primer == nil {
 		s.Note = append(s.Note, "No -AS primer")
 	}
 }
@@ -1081,11 +1085,7 @@ func (s *Seq) WriteExtraPrimer() {
 	// SegmentPrimers
 	{
 		for i, primer := range s.SegmentPrimers {
-			if primer != nil {
-				fmtUtil.Fprintf(out, "%s\t%s\t%s\n", primer.Name, primer.Seq, s.Name)
-			} else {
-				fmtUtil.Fprintf(out, "%s-%dF\t%s\t%s\n", s.Name, i, "NULL", s.Name)
-			}
+			s.PrintPrimer(out, primer)
 		}
 	}
 }
