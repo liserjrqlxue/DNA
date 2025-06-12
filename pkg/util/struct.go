@@ -607,6 +607,7 @@ func (s *Seq) FindPrimerS() {
 	if len(primerCandidates) > 0 {
 		var _, index = FindMin(primerScore)
 		s.PrimerS = primerCandidates[index]
+		s.PrimerSS = NewSimplePrimer(s.Name+"-SS", s.UniversalUpperPrimer+s.PrimerS.Seq)
 	}
 }
 
@@ -1035,9 +1036,9 @@ func (s *Seq) Write3pot() {
 func (s *Seq) PrintPrimerS(out *os.File) {
 	var primer = s.PrimerS
 	if primer != nil {
-		fmtUtil.Fprintf(out, "%s\t%s\t%s\n", primer.Name, primer.Seq, s.Name)
+		fmtUtil.Fprintf(out, "%s\t%s\t%s\t%d\t%.2f\n", primer.Name, primer.Seq, s.Name, primer.Length, primer.Tm)
 	} else {
-		fmtUtil.Fprintf(out, "%s-S\t%s\t%s\n", s.Name, "NULL", s.Name)
+		fmtUtil.Fprintf(out, "%s-S\t%s\t%s\t\t\n", s.Name, "NULL", s.Name)
 		s.Note = append(s.Note, "No -S primer")
 	}
 }
@@ -1045,9 +1046,9 @@ func (s *Seq) PrintPrimerS(out *os.File) {
 func (s *Seq) PrintPrimerAS(out *os.File) {
 	var primer = s.PrimerAS
 	if primer != nil {
-		fmtUtil.Fprintf(out, "%s\t%s\t%s\n", primer.Name, ReverseComplement(primer.Seq), s.Name)
+		fmtUtil.Fprintf(out, "%s\t%s\t%s\t%d\t%.2f\n", primer.Name, primer.Seq, s.Name, primer.Length, primer.Tm)
 	} else {
-		fmtUtil.Fprintf(out, "%s-AS\t%s\t%s\n", s.Name, "NULL", s.Name)
+		fmtUtil.Fprintf(out, "%s-AS\t%s\t%s\t\t\n", s.Name, "NULL", s.Name)
 		s.Note = append(s.Note, "No -AS primer")
 	}
 }
