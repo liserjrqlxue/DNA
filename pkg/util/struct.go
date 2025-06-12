@@ -68,7 +68,9 @@ type Seq struct {
 
 	RawSeqPrimer    *Primer
 	PrimerS         *Primer
+	PrimerSS        *Primer
 	PrimerAS        *Primer
+	PrimerASS       *Primer
 	SegmentPrimers  []*Primer
 	PrimerFs        []*Primer
 	CandidatePrimer []*Primer
