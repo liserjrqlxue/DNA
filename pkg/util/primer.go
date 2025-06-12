@@ -62,6 +62,21 @@ func NewPrimer(name string, seq string, start, end int) *Primer {
 	return primer
 }
 
+func NewSimplePrimer(name string, seq string) *Primer {
+	// Create a new Primer object and assign the values to its fields.
+	primer := &Primer{
+		Name:   name,
+		Seq:    seq,
+		Length: len(seq),
+	}
+
+	// Calculate additional properties of the Primer.
+	primer.Calculate()
+
+	// Return the created Primer.
+	return primer
+}
+
 // Calculate calculates the ATCG count, duplicate link count,
 // GC content, and melting temperature (Tm).
 //
