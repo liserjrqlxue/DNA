@@ -619,7 +619,7 @@ func (s *Seq) FindPrimerAS() {
 		if i > s.Length-20 {
 			continue
 		}
-		var primer = NewPrimer(s.Name+"-AS", s.Seq, s.Length-i-20, s.Length-20)
+		var primer = NewSimplePrimer(s.Name+"-AS", ReverseComplement(s.Seq[s.Length-i-20:s.Length-20]))
 		if primer.Check(0, s.TailRepeat) {
 			primerCandidates = append(primerCandidates, primer)
 			primerScore = append(primerScore, math.Abs(TmRange[2]-primer.Tm))
@@ -628,6 +628,7 @@ func (s *Seq) FindPrimerAS() {
 	if len(primerCandidates) > 0 {
 		var _, index = FindMin(primerScore)
 		s.PrimerAS = primerCandidates[index]
+		s.PrimerASS = NewSimplePrimer(s.Name+"-ASS", ReverseComplement(s.UniversalLowerPrimer)+s.PrimerAS.Seq)
 	}
 }
 

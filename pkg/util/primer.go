@@ -62,6 +62,7 @@ func NewPrimer(name string, seq string, start, end int) *Primer {
 	return primer
 }
 
+// if not need Start End
 func NewSimplePrimer(name string, seq string) *Primer {
 	// Create a new Primer object and assign the values to its fields.
 	primer := &Primer{
