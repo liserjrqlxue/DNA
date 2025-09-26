@@ -199,7 +199,7 @@ func (s *Seq) Calculator() {
 
 func (s *Seq) CalculatorKmerGC() {
 	var (
-		GC     [seqLengthMax]float64
+		GC     [SeqLengthMax]float64
 		gcType []int
 	)
 	for i, c := range s.Seq {

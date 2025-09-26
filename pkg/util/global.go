@@ -8,7 +8,8 @@ import (
 
 // const
 const (
-	seqLengthMax      = 1024 * 12
+	// 计算GC时的辅助数组上限
+	SeqLengthMax      = 1024 * 100
 	Kmer              = 15
 	PrimerLengthMin   = 20
 	PrimerLength      = 20
