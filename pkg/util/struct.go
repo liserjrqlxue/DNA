@@ -1060,7 +1060,7 @@ func (s *Seq) PrintPrimerAS(out *os.File) {
 func (s *Seq) FindTailChangedPrimer() {
 	s.FindPrimerS()
 	s.FindPrimerAS()
-	s.FindPrimer650(650, 1)
+	s.FindPrimer650(350, 1)
 }
 
 func (s *Seq) WriteExtraPrimer() {
