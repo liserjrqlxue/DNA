@@ -683,7 +683,7 @@ func (s *Seq) FindPrimer650(offset, count int) {
 		var _, index = FindMin(primerScore)
 		s.SegmentPrimers = append(s.SegmentPrimers, primerCandidates[index])
 	} else {
-		s.SegmentPrimers = append(s.SegmentPrimers, nil)
+		s.SegmentPrimers = append(s.SegmentPrimers, NewSimplePrimer(s.Name+"-"+strconv.Itoa(count)+"F", ""))
 	}
 	s.FindPrimer650(offset+SangerLength, count+1)
 }
