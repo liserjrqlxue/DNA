@@ -638,10 +638,11 @@ func (s *Seq) FindPrimer650(offset, count int) {
 		primerCandidates []*Primer
 		primerScore      []float64
 	)
-	if offset > s.Length-PrimerRange[0] {
+	// 使用尾引物
+	if offset > s.Length-EdgeLength {
 		return
 	}
-	for i := 0; i <= 100; i++ {
+	for i := 0; i <= 50; i++ {
 		var start = offset - i
 		if start > s.Length-PrimerRange[0] {
 			continue
@@ -684,7 +685,7 @@ func (s *Seq) FindPrimer650(offset, count int) {
 	} else {
 		s.SegmentPrimers = append(s.SegmentPrimers, nil)
 	}
-	s.FindPrimer650(offset+650, count+1)
+	s.FindPrimer650(offset+SangerLength, count+1)
 }
 
 var MaxLength = 1500
@@ -1060,7 +1061,7 @@ func (s *Seq) PrintPrimerAS(out *os.File) {
 func (s *Seq) FindTailChangedPrimer() {
 	s.FindPrimerS()
 	s.FindPrimerAS()
-	s.FindPrimer650(350, 1)
+	s.FindPrimer650(EdgeLength, 1)
 }
 
 func (s *Seq) WriteExtraPrimer() {

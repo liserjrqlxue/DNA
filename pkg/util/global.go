@@ -19,6 +19,11 @@ const (
 	// 末端GC长度
 	terminalGC = 2
 	outRepeat  = 2
+
+	// Sanger测序
+	SangerLength = 800
+	EdgeOffset   = 100
+	EdgeLength   = SangerLength - EdgeOffset
 )
 
 // limitation
