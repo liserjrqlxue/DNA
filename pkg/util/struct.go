@@ -639,7 +639,7 @@ func (s *Seq) FindPrimer650(offset, count int) {
 		primerScore      []float64
 	)
 	// 使用尾引物
-	if offset > s.Length-EdgeLength {
+	if offset > s.Length-len(s.UniversalLowerPrimer)-EdgeLength {
 		return
 	}
 	for i := 0; i <= 50; i++ {
@@ -1061,7 +1061,7 @@ func (s *Seq) PrintPrimerAS(out *os.File) {
 func (s *Seq) FindTailChangedPrimer() {
 	s.FindPrimerS()
 	s.FindPrimerAS()
-	s.FindPrimer650(EdgeLength, 1)
+	s.FindPrimer650(EdgeLength+len(s.UniversalUpperPrimer), 1)
 }
 
 func (s *Seq) WriteExtraPrimer() {
