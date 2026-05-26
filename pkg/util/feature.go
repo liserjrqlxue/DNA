@@ -6,15 +6,15 @@ import (
 )
 
 type Feature struct {
-	chr   string
-	start int
-	end   int
-	name  string
-	seq   string
+	Chr   string
+	Start int
+	End   int
+	Name  string
+	Seq   string
 }
 
 func (f *Feature) String() string {
-	return fmt.Sprintf("%s\t%d\t%d\t%s", f.chr, f.start, f.end, f.name)
+	return fmt.Sprintf("%s\t%d\t%d\t%s", f.Chr, f.Start, f.End, f.Name)
 }
 
 func GetRepeat(seq string, length int) []*Feature {
@@ -26,14 +26,14 @@ func GetRepeat(seq string, length int) []*Feature {
 				repeat = append(
 					repeat,
 					&Feature{
-						chr:   Name,
-						start: i,
-						end:   i + length,
+						Chr:   Name,
+						Start: i,
+						End:   i + length,
 					},
 					&Feature{
-						chr:   Name,
-						start: j,
-						end:   j + length,
+						Chr:   Name,
+						Start: j,
+						End:   j + length,
 					},
 				)
 			}
@@ -50,7 +50,7 @@ func MergeIntervals(intervals []*Feature) []*Feature {
 
 	// 按起点排序
 	sort.Slice(intervals, func(i, j int) bool {
-		return intervals[i].start < intervals[j].start
+		return intervals[i].Start < intervals[j].Start
 	})
 
 	merged := make([]*Feature, 0)
@@ -58,10 +58,10 @@ func MergeIntervals(intervals []*Feature) []*Feature {
 
 	for _, interval := range intervals[1:] {
 		// fmt.Printf("\t%d-%d\n", interval[0], interval[1])
-		if interval.start <= current.end { // 有交集
+		if interval.Start <= current.End { // 有交集
 			// 合并区间
-			if interval.end > current.end {
-				current.end = interval.end
+			if interval.End > current.End {
+				current.End = interval.End
 			}
 		} else {
 			// 没有交集，保存当前区间并更新
@@ -79,7 +79,7 @@ func MergeIntervals(intervals []*Feature) []*Feature {
 func SumLength(intervals []*Feature) int {
 	var sum int
 	for _, interval := range intervals {
-		sum += interval.end - interval.start
+		sum += interval.End - interval.Start
 	}
 	return sum
 }

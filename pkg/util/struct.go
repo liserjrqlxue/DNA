@@ -290,10 +290,10 @@ func (s *Seq) CalculatorSTR() {
 			}
 			if end-start >= kmer {
 				var str = &Feature{
-					chr:   Name,
-					start: start,
-					end:   end + kmer,
-					name:  fmt.Sprintf("STR:%s:%d", s.Seq[start:end+kmer], end-start+kmer),
+					Chr:   Name,
+					Start: start,
+					End:   end + kmer,
+					Name:  fmt.Sprintf("STR:%s:%d", s.Seq[start:end+kmer], end-start+kmer),
 				}
 				s.STR = append(s.STR, str)
 				if Verbose > 0 {
@@ -321,10 +321,10 @@ func (s *Seq) CalculatorPoly() {
 		}
 		if end-start >= 3 {
 			var poly = &Feature{
-				chr:   Name,
-				start: start,
-				end:   end + 1,
-				name:  fmt.Sprintf("Poly:%s:%d", s.Seq[start:end+1], end-start+1),
+				Chr:   Name,
+				Start: start,
+				End:   end + 1,
+				Name:  fmt.Sprintf("Poly:%s:%d", s.Seq[start:end+1], end-start+1),
 			}
 			s.Poly = append(s.Poly, poly)
 			if Verbose > 0 {
@@ -352,11 +352,11 @@ func (s *Seq) CalculatorRepeat() {
 		var str = seq[i : i+kmer]
 		if count[str] > 1 {
 			var repeat = &Feature{
-				chr:   Name,
-				start: i,
-				end:   i + kmer,
-				name:  fmt.Sprintf("Repeat:%s:%d", str, count[str]),
-				seq:   str,
+				Chr:   Name,
+				Start: i,
+				End:   i + kmer,
+				Name:  fmt.Sprintf("Repeat:%s:%d", str, count[str]),
+				Seq:   str,
 			}
 			repeatList = append(repeatList, repeat)
 		}
@@ -377,20 +377,20 @@ func (s *Seq) CalculatorRepeat() {
 		repeatList = []*Feature{}
 
 		for _, reg := range oldList {
-			if reg.end < s.Length {
-				count[seq[reg.start:reg.end+1]]++
+			if reg.End < s.Length {
+				count[seq[reg.Start:reg.End+1]]++
 			}
 		}
 		for _, reg := range oldList {
-			if reg.end < s.Length {
-				var str = seq[reg.start : reg.end+1]
+			if reg.End < s.Length {
+				var str = seq[reg.Start : reg.End+1]
 				if count[str] > 1 {
 					var repeat = &Feature{
-						chr:   Name,
-						start: reg.start,
-						end:   reg.end + 1,
-						name:  fmt.Sprintf("Repeat:%s:%d", str, count[str]),
-						seq:   str,
+						Chr:   Name,
+						Start: reg.Start,
+						End:   reg.End + 1,
+						Name:  fmt.Sprintf("Repeat:%s:%d", str, count[str]),
+						Seq:   str,
 					}
 					repeatList = append(repeatList, repeat)
 				}
@@ -398,7 +398,7 @@ func (s *Seq) CalculatorRepeat() {
 		}
 	}
 	for _, repeat := range allList {
-		if CheckGC70(repeat.seq) {
+		if CheckGC70(repeat.Seq) {
 			s.Repeat = append(s.Repeat, repeat)
 			if Verbose > 0 {
 				slog.Info("", "repeat", repeat)
@@ -410,19 +410,19 @@ func (s *Seq) CalculatorRepeat() {
 
 func (s *Seq) RepeatDeleteCovered() {
 	sort.Slice(s.Repeat, func(i, j int) bool {
-		if s.Repeat[i].start == s.Repeat[j].start {
-			return s.Repeat[i].end < s.Repeat[j].end
+		if s.Repeat[i].Start == s.Repeat[j].Start {
+			return s.Repeat[i].End < s.Repeat[j].End
 		}
-		return s.Repeat[i].start < s.Repeat[j].start
+		return s.Repeat[i].Start < s.Repeat[j].Start
 	})
 	var newRepeat []*Feature
 	for i := 0; i < len(s.Repeat); i++ {
 		var repeat1 = s.Repeat[i]
-		var length = repeat1.end - repeat1.start
+		var length = repeat1.End - repeat1.Start
 		var keep = true
 		for j := 0; j < len(s.Repeat); j++ {
 			var repeat2 = s.Repeat[j]
-			if repeat2.start <= repeat1.start && repeat2.end >= repeat1.end && repeat2.end-repeat2.start > length {
+			if repeat2.Start <= repeat1.Start && repeat2.End >= repeat1.End && repeat2.End-repeat2.Start > length {
 				keep = false
 				break
 			}
@@ -440,7 +440,7 @@ func (s *Seq) CalTailRepeat() {
 	features = append(features, s.STR...)
 	features = append(features, s.Repeat...)
 	sort.Slice(features, func(i, j int) bool {
-		return features[i].start < features[j].start
+		return features[i].Start < features[j].Start
 	})
 
 	features = MergeFeatures(s.Seq, features)
@@ -452,7 +452,7 @@ func (s *Seq) CalMiddRepeat() {
 	features = append(features, s.Poly...)
 	features = append(features, s.STR...)
 	sort.Slice(features, func(i, j int) bool {
-		return features[i].start < features[j].start
+		return features[i].Start < features[j].Start
 	})
 	features = MergeFeatures(s.Seq, features)
 	s.MiddRepeat = features

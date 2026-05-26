@@ -33,34 +33,34 @@ func LoadInputSeq(path string) string {
 func CheckLocalRepeat(region []*Feature, start, end int) bool {
 	for _, feature := range region {
 		// 1 left up steam
-		if start >= feature.end {
+		if start >= feature.End {
 			continue
 		} else { // start<feature.end
-			if start >= feature.start {
-				if end > feature.end { // 2 left overlap
-					if feature.end-start > outRepeat { // overlap
+			if start >= feature.Start {
+				if end > feature.End { // 2 left overlap
+					if feature.End-start > outRepeat { // overlap
 						return false
 					}
-					if end-feature.end < outRepeat { // flank
+					if end-feature.End < outRepeat { // flank
 						return false
 					}
 				} else { // end<=feature.end // 3 cover
 					return false
 				}
 			} else { // start < feature.start
-				if end > feature.end { // 4 inner
-					if feature.start-start < outRepeat { // flank
+				if end > feature.End { // 4 inner
+					if feature.Start-start < outRepeat { // flank
 						return false
 					}
-					if end-feature.end < outRepeat { // flank
+					if end-feature.End < outRepeat { // flank
 						return false
 					}
 				} else { // end<=feature.end
-					if feature.start < end { // 5 right overlap
-						if end-feature.start > outRepeat { // overlap
+					if feature.Start < end { // 5 right overlap
+						if end-feature.Start > outRepeat { // overlap
 							return false
 						}
-						if feature.start-start < outRepeat { // flank
+						if feature.Start-start < outRepeat { // flank
 							return false
 						}
 					} else { // end<=feature.start // 6 right
@@ -91,25 +91,25 @@ func MergeFeatures(seq string, region []*Feature) []*Feature {
 	var (
 		newRegion []*Feature
 		reg       = &Feature{
-			chr:   region[0].chr,
-			start: region[0].start,
-			end:   region[0].end,
-			name:  region[0].name,
+			Chr:   region[0].Chr,
+			Start: region[0].Start,
+			End:   region[0].End,
+			Name:  region[0].Name,
 		}
 		count = 0
 	)
 	for i := 0; i < len(region)-1; i++ {
-		if reg.end > region[i].start {
-			reg.end = Max(reg.end, region[i].end)
+		if reg.End > region[i].Start {
+			reg.End = Max(reg.End, region[i].End)
 			count++
 		} else {
-			reg.name = fmt.Sprintf("Merged:%s:%d", seq[reg.start:reg.end], count)
+			reg.Name = fmt.Sprintf("Merged:%s:%d", seq[reg.Start:reg.End], count)
 			newRegion = append(newRegion, reg)
 			reg = &Feature{
-				chr:   region[i].chr,
-				start: region[i].start,
-				end:   region[i].end,
-				name:  region[i].name,
+				Chr:   region[i].Chr,
+				Start: region[i].Start,
+				End:   region[i].End,
+				Name:  region[i].Name,
 			}
 			count = 1
 		}
