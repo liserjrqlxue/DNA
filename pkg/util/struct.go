@@ -408,6 +408,79 @@ func (s *Seq) CalculatorRepeat() {
 	s.RepeatDeleteCovered()
 }
 
+func (s *Seq) CalculatorRepeat8nt() {
+	var (
+		count      = make(map[string]int)
+		kmer       = 8
+		End        = s.Length - kmer + 1
+		seq        = s.Seq
+		repeatList []*Feature
+		oldList    []*Feature
+		allList    []*Feature
+	)
+
+	if End <= 0 {
+		s.Repeat = []*Feature{}
+		return
+	}
+
+	for i := 0; i < End; i++ {
+		count[seq[i:i+kmer]]++
+	}
+	for i := 0; i < End; i++ {
+		var str = seq[i : i+kmer]
+		if count[str] > 1 {
+			var repeat = &Feature{
+				Chr:   Name,
+				Start: i,
+				End:   i + kmer,
+				Name:  fmt.Sprintf("Repeat:%s:%d", str, count[str]),
+				Seq:   str,
+			}
+			repeatList = append(repeatList, repeat)
+		}
+	}
+
+	for {
+		kmer++
+		End--
+
+		if End <= 0 || repeatList == nil {
+			break
+		}
+
+		allList = append(allList, repeatList...)
+
+		count = make(map[string]int)
+		oldList = repeatList
+		repeatList = []*Feature{}
+
+		for _, reg := range oldList {
+			if reg.End < s.Length {
+				count[seq[reg.Start:reg.End+1]]++
+			}
+		}
+		for _, reg := range oldList {
+			if reg.End < s.Length {
+				var str = seq[reg.Start : reg.End+1]
+				if count[str] > 1 {
+					var repeat = &Feature{
+						Chr:   Name,
+						Start: reg.Start,
+						End:   reg.End + 1,
+						Name:  fmt.Sprintf("Repeat:%s:%d", str, count[str]),
+						Seq:   str,
+					}
+					repeatList = append(repeatList, repeat)
+				}
+			}
+		}
+	}
+
+	s.Repeat = allList
+	s.RepeatDeleteCovered()
+}
+
 func (s *Seq) RepeatDeleteCovered() {
 	sort.Slice(s.Repeat, func(i, j int) bool {
 		if s.Repeat[i].Start == s.Repeat[j].Start {
