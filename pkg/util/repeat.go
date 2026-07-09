@@ -38,8 +38,14 @@ func FindRepeats(seq string, minLen int, name string) []*Feature {
 
 	regions := extractMaximalRepeats(sa, lcp, seq, minLen)
 
+	// 提前计算 Feature 总数
+	totalFeatures := 0
+	for _, reg := range regions {
+		totalFeatures += reg.saEnd - reg.saStart
+	}
+
 	// 转换为 Feature：为每个出现位置创建一条记录
-	features := make([]*Feature, 0)
+	features := make([]*Feature, 0, totalFeatures) // 预分配精确容量
 	for _, reg := range regions {
 		firstStart := sa[reg.saStart]
 		subSeq := seq[firstStart : firstStart+reg.len]
