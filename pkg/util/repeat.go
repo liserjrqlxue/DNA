@@ -150,38 +150,40 @@ func extractMaximalRepeats(sa []int, lcp []int, seq string, minLen int) []repeat
 	return regions
 }
 
-// removeCovered 实现与 RepeatDeleteCovered 相同的逻辑，去除被完全覆盖且长度更短的重复
 func removeCovered(feats []*Feature) []*Feature {
 	if len(feats) == 0 {
 		return feats
 	}
-	// 按 Start 升序，Start 相同时 End 升序
+	// 排序：Start 升序，Start 相同时 End 降序（长的在前）
 	sort.Slice(feats, func(i, j int) bool {
-		if feats[i].Start == feats[j].Start {
-			return feats[i].End < feats[j].End
+		if feats[i].Start != feats[j].Start {
+			return feats[i].Start < feats[j].Start
 		}
-		return feats[i].Start < feats[j].Start
+		return feats[i].End > feats[j].End
 	})
 
-	newList := make([]*Feature, 0, len(feats))
-	for i, feat1 := range feats {
-		length1 := feat1.End - feat1.Start
-		keep := true
-		for j, feat2 := range feats {
-			if i == j {
-				continue
-			}
-			// 如果 feat2 完全覆盖 feat1 且严格更长，则丢弃 feat1
-			if feat2.Start <= feat1.Start && feat2.End >= feat1.End && feat2.End-feat2.Start > length1 {
-				keep = false
+	stack := make([]*Feature, 0, len(feats))
+	for _, f := range feats {
+		for len(stack) > 0 {
+			top := stack[len(stack)-1]
+			// 栈顶完全覆盖 f（包含相同区间）
+			if top.Start <= f.Start && top.End >= f.End {
+				f = nil // 标记丢弃
 				break
 			}
+			// f 完全覆盖栈顶
+			if f.Start <= top.Start && f.End >= top.End {
+				stack = stack[:len(stack)-1] // 弹出栈顶
+				continue
+			}
+			// 互不包含，停止检查栈顶
+			break
 		}
-		if keep {
-			newList = append(newList, feat1)
+		if f != nil {
+			stack = append(stack, f)
 		}
 	}
-	return newList
+	return stack
 }
 
 // buildSuffixArray 倍增法构建后缀数组
