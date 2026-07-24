@@ -108,6 +108,9 @@ type Seq struct {
 	HardSwitch bool // hard模式启用开关
 	Hard       bool
 	Break      bool
+
+	KmerCounts6 map[string]int // 6-mer 出现次数
+	KmerCounts8 map[string]int // 8-mer 出现次数
 }
 
 func NewSeq(name, rawSeq, prefix string, hr, hardSwitch bool) *Seq {
@@ -1958,4 +1961,48 @@ func SplitSegmentPairTest() {
 		bk := SplitSegmentPair(i)
 		fmt.Printf("%d:\t%+v\t%+v\t\n\tN1a:%+v\tN1b:%+v\tN2a:%+v\tN2b:%+v\n", i, data[:i], bk, data[:bk[0]], data[bk[0]:bk[1]], data[bk[1]:bk[2]], data[bk[2]:i])
 	}
+}
+
+// BuildRepeatKmerIndex 为 s.RawSeq 构建 6-mer 和 8-mer 的滑动窗口频次表
+func (s *Seq) BuildRepeatKmerIndex() {
+	if s == nil {
+		return
+	}
+	raw := s.RawSeq
+	// 6-mer
+	s.KmerCounts6 = make(map[string]int, len(raw)-5)
+	for i := 0; i <= len(raw)-6; i++ {
+		s.KmerCounts6[raw[i:i+6]]++
+	}
+	// 8-mer
+	s.KmerCounts8 = make(map[string]int, len(raw)-7)
+	for i := 0; i <= len(raw)-8; i++ {
+		s.KmerCounts8[raw[i:i+8]]++
+	}
+}
+
+// IsRepeat 检查子串 sub 在 RawSeq 中是否重复（出现次数 > RepeatThreshold）
+// 优先使用预计算的索引，未构建索引或长度不匹配时回退到 strings.Count
+func (s *Seq) IsRepeat(sub string) bool {
+	if sub == "" || s == nil {
+		return false
+	}
+	var cnt int
+	switch len(sub) {
+	case 6:
+		if s.KmerCounts6 != nil {
+			cnt = s.KmerCounts6[sub]
+		} else {
+			cnt = strings.Count(s.RawSeq, sub)
+		}
+	case 8:
+		if s.KmerCounts8 != nil {
+			cnt = s.KmerCounts8[sub]
+		} else {
+			cnt = strings.Count(s.RawSeq, sub)
+		}
+	default:
+		cnt = strings.Count(s.RawSeq, sub)
+	}
+	return cnt > 1
 }
