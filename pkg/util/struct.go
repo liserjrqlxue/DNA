@@ -111,6 +111,8 @@ type Seq struct {
 
 	KmerCounts6 map[string]int // 6-mer 出现次数
 	KmerCounts8 map[string]int // 8-mer 出现次数
+
+	Extra map[string]any
 }
 
 func NewSeq(name, rawSeq, prefix string, hr, hardSwitch bool) *Seq {
