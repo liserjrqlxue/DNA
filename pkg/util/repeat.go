@@ -47,15 +47,30 @@ func FindRepeats(seq string, minLen int, name string) []*Feature {
 	// 转换为 Feature：为每个出现位置创建一条记录
 	features := make([]*Feature, 0, totalFeatures) // 预分配精确容量
 	for _, reg := range regions {
-		firstStart := sa[reg.saStart]
-		subSeq := seq[firstStart : firstStart+reg.len]
+		baseK := reg.len
 		count := reg.saEnd - reg.saStart
-		for k := reg.saStart; k < reg.saEnd; k++ {
-			start := sa[k]
+		var subSeq string
+		validStart := -1
+		for idx := reg.saStart; idx < reg.saEnd; idx++ {
+			start := sa[idx]
+			if start+baseK <= len(seq) {
+				validStart = start
+				break
+			}
+		}
+		if validStart == -1 {
+			continue
+		}
+		subSeq = seq[validStart : validStart+baseK]
+		for idx := reg.saStart; idx < reg.saEnd; idx++ {
+			start := sa[idx]
+			if start+baseK > len(seq) {
+				continue
+			}
 			features = append(features, &Feature{
 				Chr:   name,
 				Start: start,
-				End:   start + reg.len,
+				End:   start + baseK,
 				Name:  fmt.Sprintf("Repeat:%s:%d", subSeq, count),
 				Seq:   subSeq,
 			})
@@ -94,10 +109,10 @@ func extractMaximalRepeats(sa []int, lcp []int, seq string, minLen int) []repeat
 
 			// 出现次数至少 2 次，且长度达到要求
 			if h >= minLen && right-left >= 2 {
-				// 1. 检查所有后缀长度是否足够
+				// 1. 检查所有后缀长度是否足够（pos + h 必须 < len(seq) ）
 				validLen := true
 				for k := left; k < right; k++ {
-					if sa[k]+h > len(seq) {
+					if sa[k]+h >= len(seq) { // 必须严格小于序列长度才能安全取右边界字符
 						validLen = false
 						break
 					}
