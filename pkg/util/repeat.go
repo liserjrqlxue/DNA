@@ -249,7 +249,7 @@ func FindInvertedRepeats(seq string, minLen int, name string) []*Feature {
 	}
 	lcp := make([]int, n)
 	h := 0
-	for i := 0; i < n; i++ {
+	for i := range n {
 		r := rank[i]
 		if r == 0 {
 			continue
@@ -272,7 +272,7 @@ func FindInvertedRepeats(seq string, minLen int, name string) []*Feature {
 	var regions []region
 	stack := make([]int, 0, n)
 	lcpExt := append(lcp, 0) // 哨兵
-	for i := 0; i <= n; i++ {
+	for i := range n {
 		for len(stack) > 0 && lcpExt[stack[len(stack)-1]] > lcpExt[i] {
 			top := stack[len(stack)-1]
 			stack = stack[:len(stack)-1]
@@ -329,10 +329,14 @@ func FindInvertedRepeats(seq string, minLen int, name string) []*Feature {
 	// 生成 Feature：为每个跨区重复的每个出现位置生成 Feature
 	var feats []*Feature
 	for _, reg := range regions {
-		k := reg.len
+		baseK := reg.len
 		for idx := reg.saStart; idx < reg.saEnd; idx++ {
 			pos := sa[idx]
 			if pos < L { // S 区
+				k := min(baseK, L-pos)
+				if k < minLen {
+					continue
+				}
 				feats = append(feats, &Feature{
 					Chr:   name,
 					Start: pos,
@@ -342,6 +346,10 @@ func FindInvertedRepeats(seq string, minLen int, name string) []*Feature {
 				})
 			} else if pos > L && pos < 2*L+1 { // RC 区，映射回正向
 				offsetRC := pos - (L + 1)
+				k := min(baseK, L-offsetRC)
+				if k < minLen {
+					continue
+				}
 				newStart := L - offsetRC - k
 				feats = append(feats, &Feature{
 					Chr:   name,
