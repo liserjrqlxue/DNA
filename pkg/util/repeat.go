@@ -94,7 +94,19 @@ func extractMaximalRepeats(sa []int, lcp []int, seq string, minLen int) []repeat
 
 			// 出现次数至少 2 次，且长度达到要求
 			if h >= minLen && right-left >= 2 {
-				// 检查左右字符以判断是否极大
+				// 1. 检查所有后缀长度是否足够
+				validLen := true
+				for k := left; k < right; k++ {
+					if sa[k]+h > len(seq) {
+						validLen = false
+						break
+					}
+				}
+				if !validLen {
+					continue
+				}
+
+				// 2. 检查左右字符以判断极大性
 				allLeftSame, allRightSame := true, true
 				var leftChar, rightChar byte = 0, 0
 				for k := left; k < right; k++ {
@@ -110,16 +122,12 @@ func extractMaximalRepeats(sa []int, lcp []int, seq string, minLen int) []repeat
 							allLeftSame = false
 						}
 					}
-					// 右边界检查
-					if pos+h >= len(seq) {
+					// 右边界检查 （此时 pos+h < len(seq) 已由 validLen 保证）
+					ch := seq[pos+h]
+					if k == left {
+						rightChar = ch
+					} else if ch != rightChar {
 						allRightSame = false
-					} else {
-						ch := seq[pos+h]
-						if k == left {
-							rightChar = ch
-						} else if ch != rightChar {
-							allRightSame = false
-						}
 					}
 				}
 				// 只要有一侧字符不全相同，就是极大重复
