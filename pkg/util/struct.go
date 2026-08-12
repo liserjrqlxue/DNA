@@ -115,7 +115,7 @@ type Seq struct {
 	Extra map[string]any
 }
 
-func NewSeq(name, rawSeq, prefix string, hr, hardSwitch bool) *Seq {
+func NewSeq(name, rawSeq, prefix string, hr, hardSwitch bool) (*Seq, error) {
 	var s = &Seq{
 		Name:         name,
 		RawSeq:       rawSeq,
@@ -127,14 +127,17 @@ func NewSeq(name, rawSeq, prefix string, hr, hardSwitch bool) *Seq {
 
 		HardSwitch: hardSwitch,
 	}
-	s.Init()
-	return s
+	err := s.Init()
+	if err != nil {
+		return nil, err
+	}
+	return s, nil
 }
 
-func (s *Seq) Init() {
+func (s *Seq) Init() error {
 	if !ACGTN.MatchString(s.RawSeq) {
 		slog.Error("Error (Invalid sequence)", "s.RawSeq", s.RawSeq)
-		log.Fatalf("Error (Invalid sequence): [%s]", s.RawSeq)
+		return fmt.Errorf("Error (Invalid sequence): [%s]", s.RawSeq)
 	}
 
 	s.Kmer = Kmer
@@ -159,12 +162,13 @@ func (s *Seq) Init() {
 		s.SegmentPrimerLengthSuggest = 30
 		s.SegmentPrimerTmSuggest = TmRange[2]
 	}
+	return nil
 }
 
-func (s *Seq) NewNoUni(name, sequence string) *Seq {
-	if !ACGT.MatchString(sequence) {
+func (s *Seq) NewNoUni(name, sequence string) (*Seq, error) {
+	if !ACGTN.MatchString(sequence) {
 		slog.Error("(Invalid sequence)", "sequence", sequence)
-		log.Fatalf("Error (Invalid sequence): [%s]", sequence)
+		return nil, fmt.Errorf("Error (Invalid sequence): [%s]", sequence)
 	}
 	s.Name = name
 	s.Seq = sequence
@@ -174,7 +178,7 @@ func (s *Seq) NewNoUni(name, sequence string) *Seq {
 	s.end = Min(s.start+SegPairLength, s.Length)
 	s.offset = PrimerLengthMin
 
-	return s
+	return s, nil
 }
 
 func (s *Seq) CreateFiles() {
@@ -1364,13 +1368,13 @@ func (s *Seq) SegmentSplit(pics int) bool {
 		}
 	}
 	for i, v := range s.Segments {
-		s.Segments[i] = NewSeq(
+		s.Segments[i] = simpleUtil.HandleError(NewSeq(
 			fmt.Sprintf("%s%c", s.Name, 'a'+i),
 			v.RawSeq,
 			fmt.Sprintf("%s%c", s.OutputPrefix, 'a'+i),
 			s.HomologousRecombination,
 			s.HardSwitch,
-		)
+		))
 		if !s.Segments[i].SimpleRun() {
 			slog.Error("segment split failed", "i", i, "name", s.Segments[i].Name)
 			return false
@@ -1393,21 +1397,29 @@ func (s *Seq) SegmentSplit2() bool {
 		),
 	)
 
-	var seqa = NewSeq(
+	seqa, err := NewSeq(
 		s.Name+"a",
 		s.Seq[len(UniversalUpperPrimer):s.SegmentOverlapPrimer.End],
 		s.OutputPrefix+"a",
 		s.HomologousRecombination,
 		s.HardSwitch,
 	)
+	if err != nil {
+		slog.Error("Error (Invalid sequence)", "s.RawSeq", seqa.RawSeq)
+		return false
+	}
 	var oka = seqa.SimpleRun()
-	var seqb = NewSeq(
+	seqb, err := NewSeq(
 		s.Name+"b",
 		s.Seq[s.SegmentOverlapPrimer.Start:s.Length-len(UniversalLowerPrimer)],
 		s.OutputPrefix+"b",
 		s.HomologousRecombination,
 		s.HardSwitch,
 	)
+	if err != nil {
+		slog.Error("Error (Invalid sequence)", "s.RawSeq", seqb.RawSeq)
+		return false
+	}
 	var okb = seqb.SimpleRun()
 	if oka {
 		slog.Info("Run segment split 1/2 success", "name", s.Name, "end", s.SegmentOverlapPrimer.End)
@@ -1457,20 +1469,28 @@ func (s *Seq) SegmentSplit3() bool {
 		),
 	)
 
-	var seqa = NewSeq(
+	seqa, err := NewSeq(
 		s.Name+"a",
 		s.Seq[len(UniversalUpperPrimer):s.SegmentOverlapPrimer.End],
 		s.OutputPrefix+"a",
 		s.HomologousRecombination,
 		s.HardSwitch,
 	)
-	var seqb = NewSeq(
+	if err != nil {
+		slog.Error("Error (Invalid sequence)", "s.RawSeq", seqa.RawSeq)
+		return false
+	}
+	seqb, err := NewSeq(
 		s.Name+"b",
 		s.Seq[s.SegmentOverlapPrimer.Start:s.Length-len(UniversalLowerPrimer)],
 		s.OutputPrefix+"b",
 		s.HomologousRecombination,
 		s.HardSwitch,
 	)
+	if err != nil {
+		slog.Error("Error (Invalid sequence)", "s.RawSeq", seqb.RawSeq)
+		return false
+	}
 	if seqa.SimpleRun() {
 		slog.Info("Run segment split 1/3 success", "name", s.Name, "end", s.SegmentOverlapPrimer.End)
 		slog.Debug(
@@ -1521,20 +1541,28 @@ func (s *Seq) SegmentSplit4() bool {
 		),
 	)
 
-	var seqa = NewSeq(
+	seqa, err := NewSeq(
 		s.Name+"a",
 		s.Seq[len(UniversalUpperPrimer):s.SegmentOverlapPrimer.End],
 		s.OutputPrefix+"a",
 		s.HomologousRecombination,
 		s.HardSwitch,
 	)
-	var seqb = NewSeq(
+	if err != nil {
+		slog.Error("Error (Invalid sequence)", "s.RawSeq", seqa.RawSeq)
+		return false
+	}
+	seqb, err := NewSeq(
 		s.Name+"b",
 		s.Seq[s.SegmentOverlapPrimer.Start:s.Length-len(UniversalLowerPrimer)],
 		s.OutputPrefix+"b",
 		s.HomologousRecombination,
 		s.HardSwitch,
 	)
+	if err != nil {
+		slog.Error("Error (Invalid sequence)", "s.RawSeq", seqb.RawSeq)
+		return false
+	}
 	if seqa.SimpleRun() {
 		slog.Info("Run segment split 1/4 success", "name", s.Name, "end", s.SegmentOverlapPrimer.End)
 		slog.Debug(
@@ -1585,20 +1613,28 @@ func (s *Seq) SegmentSplit5() bool {
 		),
 	)
 
-	var seqa = NewSeq(
+	seqa, err := NewSeq(
 		s.Name+"a",
 		s.Seq[len(UniversalUpperPrimer):s.SegmentOverlapPrimer.End],
 		s.OutputPrefix+"a",
 		s.HomologousRecombination,
 		s.HardSwitch,
 	)
-	var seqb = NewSeq(
+	if err != nil {
+		slog.Error("Error (Invalid sequence)", "s.RawSeq", seqa.RawSeq)
+		return false
+	}
+	seqb, err := NewSeq(
 		s.Name+"b",
 		s.Seq[s.SegmentOverlapPrimer.Start:s.Length-len(UniversalLowerPrimer)],
 		s.OutputPrefix+"b",
 		s.HomologousRecombination,
 		s.HardSwitch,
 	)
+	if err != nil {
+		slog.Error("Error (Invalid sequence)", "s.RawSeq", seqb.RawSeq)
+		return false
+	}
 	if seqa.SimpleRun() {
 		slog.Info("Run segment split 1/5 success", "name", s.Name, "end", s.SegmentOverlapPrimer.End)
 		slog.Debug(
@@ -1649,20 +1685,28 @@ func (s *Seq) SegmentSplit6() bool {
 		),
 	)
 
-	var seqa = NewSeq(
+	seqa, err := NewSeq(
 		s.Name+"a",
 		s.Seq[len(UniversalUpperPrimer):s.SegmentOverlapPrimer.End],
 		s.OutputPrefix+"a",
 		s.HomologousRecombination,
 		s.HardSwitch,
 	)
-	var seqb = NewSeq(
+	if err != nil {
+		slog.Error("Error (Invalid sequence)", "s.RawSeq", seqa.RawSeq)
+		return false
+	}
+	seqb, err := NewSeq(
 		s.Name+"b",
 		s.Seq[s.SegmentOverlapPrimer.Start:s.Length-len(UniversalLowerPrimer)],
 		s.OutputPrefix+"b",
 		s.HomologousRecombination,
 		s.HardSwitch,
 	)
+	if err != nil {
+		slog.Error("Error (Invalid sequence)", "s.RawSeq", seqb.RawSeq)
+		return false
+	}
 	if seqa.SimpleRun() {
 		slog.Info("Run segment split 1/6 success", "name", s.Name, "end", s.SegmentOverlapPrimer.End)
 		slog.Debug(
@@ -1713,20 +1757,28 @@ func (s *Seq) SegmentSplit7() bool {
 		),
 	)
 
-	var seqa = NewSeq(
+	seqa, err := NewSeq(
 		s.Name+"a",
 		s.Seq[len(UniversalUpperPrimer):s.SegmentOverlapPrimer.End],
 		s.OutputPrefix+"a",
 		s.HomologousRecombination,
 		s.HardSwitch,
 	)
-	var seqb = NewSeq(
+	if err != nil {
+		slog.Error("Error (Invalid sequence)", "s.RawSeq", seqa.RawSeq)
+		return false
+	}
+	seqb, err := NewSeq(
 		s.Name+"b",
 		s.Seq[s.SegmentOverlapPrimer.Start:s.Length-len(UniversalLowerPrimer)],
 		s.OutputPrefix+"b",
 		s.HomologousRecombination,
 		s.HardSwitch,
 	)
+	if err != nil {
+		slog.Error("Error (Invalid sequence)", "s.RawSeq", seqb.RawSeq)
+		return false
+	}
 	if seqa.SimpleRun() {
 		slog.Info("Run segment split 1/7 success", "name", s.Name, "end", s.SegmentOverlapPrimer.End)
 		slog.Debug(
@@ -1780,20 +1832,28 @@ func (s *Seq) SegmentSplitN(splitN int) bool {
 		return s.SegmentSplit2()
 	}
 
-	var seqa = NewSeq(
+	seqa, err := NewSeq(
 		s.Name+"a",
 		s.Seq[len(UniversalUpperPrimer):s.SegmentOverlapPrimer.End],
 		s.OutputPrefix+"a",
 		s.HomologousRecombination,
 		s.HardSwitch,
 	)
-	var seqb = NewSeq(
+	if err != nil {
+		slog.Error("Error (Invalid sequence)", "s.RawSeq", seqa.RawSeq)
+		return false
+	}
+	seqb, err := NewSeq(
 		s.Name+"b",
 		s.Seq[s.SegmentOverlapPrimer.Start:s.Length-len(UniversalLowerPrimer)],
 		s.OutputPrefix+"b",
 		s.HomologousRecombination,
 		s.HardSwitch,
 	)
+	if err != nil {
+		slog.Error("Error (Invalid sequence)", "s.RawSeq", seqb.RawSeq)
+		return false
+	}
 	if seqa.SimpleRun() {
 		slog.Info("Run segment split 1 success", "splitN", splitN, "name", s.Name, "end", s.SegmentOverlapPrimer.End)
 		slog.Debug(
@@ -1851,13 +1911,17 @@ func (s *Seq) SegmentSplitNN(currentN, totalN, maxN, start, left, right, end int
 		}
 	}
 	var tag = string('a' + currentN)
-	var seqCurrent = NewSeq(
+	seqCurrent, err := NewSeq(
 		s.Name+tag,
 		s.Seq[start:s.SegmentOverlapPrimer.End],
 		s.OutputPrefix+tag,
 		s.HomologousRecombination,
 		s.HardSwitch,
 	)
+	if err != nil {
+		slog.Error("Error (Invalid sequence)", "s.RawSeq", seqCurrent.RawSeq)
+		return false
+	}
 	if !seqCurrent.SimpleRun() {
 		// 当前不合格，right左移
 		right = Min(s.SegmentOverlapPrimer.End, right-1)
