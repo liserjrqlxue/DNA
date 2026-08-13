@@ -142,40 +142,6 @@ func Min(x, y int) int {
 	return x
 }
 
-// from https://forum.golangbridge.org/t/easy-way-for-letter-substitution-reverse-complementary-dna-sequence/20101
-// from https://go.dev/play/p/IXI6PY7XUXN
-var dnaComplement = strings.NewReplacer(
-	"A", "T",
-	"T", "A",
-	"G", "C",
-	"C", "G",
-	"a", "t",
-	"t", "a",
-	"g", "c",
-	"c", "g",
-)
-
-func Complement(s string) string {
-	return dnaComplement.Replace(s)
-}
-
-// Reverse returns its argument string reversed rune-wise left to right.
-// from https://github.com/golang/example/blob/master/stringutil/reverse.go
-func Reverse(r []byte) []byte {
-	for i, j := 0, len(r)-1; i < len(r)/2; i, j = i+1, j-1 {
-		r[i], r[j] = r[j], r[i]
-	}
-	return r
-}
-
-// ReverseComplement computes the reverse complement of a DNA sequence.
-//
-// It takes a string representing a DNA sequence as input.
-// It returns a string representing the reverse complement of the input sequence.
-func ReverseComplement(s string) string {
-	return Complement(string(Reverse([]byte(s))))
-}
-
 func FindMin(x []float64) (min float64, index int) {
 	min = x[0]
 	index = 0
