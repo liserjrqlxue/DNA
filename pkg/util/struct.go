@@ -1891,7 +1891,8 @@ func (s *Seq) SegmentSplitN(splitN int) bool {
 	}
 }
 
-func (s *Seq) recursiveSegmentSplit() {
+// RecursiveSegmentSplit 递归分段
+func (s *Seq) RecursiveSegmentSplit() {
 	var maxSegmentNum = int(math.Ceil(float64(s.Length)/1000 + 2))
 	s.Segments = make([]*Seq, maxSegmentNum)
 	if !s.SegmentSplitNN(0, 2, maxSegmentNum, len(UniversalUpperPrimer), len(UniversalUpperPrimer), s.Length-len(UniversalLowerPrimer), s.Length-len(UniversalLowerPrimer)) {
