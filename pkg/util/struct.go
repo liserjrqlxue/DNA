@@ -1910,7 +1910,7 @@ func (s *Seq) SegmentSplitNN(currentN, totalN, maxN, start, left, right, end int
 			return false
 		}
 	}
-	var tag = string('a' + currentN)
+	var tag = string(rune('a' + currentN))
 	seqCurrent, err := NewSeq(
 		s.Name+tag,
 		s.Seq[start:s.SegmentOverlapPrimer.End],
