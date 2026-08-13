@@ -50,6 +50,7 @@ func ReverseComplement2Bytes(s string) []byte {
 }
 
 // ---------- 输入输出均为 string 的优化版 ----------
+// 建议基于输入类型使用 ReverseComplement2Bytes 或 ReverseComplementBytes，并在需要输出string时使用 string() 转换
 func ReverseComplement(s string) string {
 	n := len(s)
 	if n == 0 {
