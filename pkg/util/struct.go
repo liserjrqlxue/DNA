@@ -702,7 +702,7 @@ func (s *Seq) FindPrimerAS() {
 		if i > s.Length-20 {
 			continue
 		}
-		var primer = NewSimplePrimer(s.Name+"-AS", ReverseComplement(s.Seq[s.Length-i-20:s.Length-20]))
+		var primer = NewSimplePrimer(s.Name+"-AS", string(ReverseComplement2Bytes(s.Seq[s.Length-i-20:s.Length-20])))
 		if primer.Check(0, s.TailRepeat) {
 			primerCandidates = append(primerCandidates, primer)
 			primerScore = append(primerScore, math.Abs(TmRange[2]-primer.Tm))
@@ -711,7 +711,7 @@ func (s *Seq) FindPrimerAS() {
 	if len(primerCandidates) > 0 {
 		var _, index = FindMin(primerScore)
 		s.PrimerAS = primerCandidates[index]
-		s.PrimerASS = NewSimplePrimer(s.Name+"-ASS", ReverseComplement(s.UniversalLowerPrimer)+s.PrimerAS.Seq)
+		s.PrimerASS = NewSimplePrimer(s.Name+"-ASS", string(ReverseComplement2Bytes(s.UniversalLowerPrimer))+s.PrimerAS.Seq)
 	}
 }
 
@@ -1028,7 +1028,7 @@ func (s *Seq) WriteSeq() {
 		for _, primerPair := range primerPairs {
 			if primerPair != nil {
 				if primerPair.Reverse {
-					fmtUtil.Fprintf(out, "%s,%s\n", primerPair.Right.Name, ReverseComplement(primerPair.Right.Seq))
+					fmtUtil.Fprintf(out, "%s,%s\n", primerPair.Right.Name, ReverseComplement2Bytes(primerPair.Right.Seq))
 				} else {
 					fmtUtil.Fprintf(out, "%s,%s\n", primerPair.Left.Name, primerPair.Left.Seq)
 				}
@@ -1041,7 +1041,7 @@ func (s *Seq) WriteSeq() {
 				if primerPair.Reverse {
 					fmtUtil.Fprintf(out, "%s,%s\n", primerPair.Left.Name, primerPair.Left.Seq)
 				} else {
-					fmtUtil.Fprintf(out, "%s,%s\n", primerPair.Right.Name, ReverseComplement(primerPair.Right.Seq))
+					fmtUtil.Fprintf(out, "%s,%s\n", primerPair.Right.Name, ReverseComplement2Bytes(primerPair.Right.Seq))
 				}
 			} else {
 				fmtUtil.Fprintf(out, "%s,%s\n", "covering", "T")
@@ -1101,7 +1101,7 @@ func (s *Seq) Write3pot() {
 			if pair != nil {
 				seqList = append(seqList, [2]string{
 					primerPairList[index].Right.Name,
-					ReverseComplement(primerPairList[index].Right.Seq),
+					string(ReverseComplement2Bytes(primerPairList[index].Right.Seq)),
 				})
 			} else {
 				seqList = append(seqList, [2]string{

@@ -22,7 +22,7 @@ func GetRepeat(seq string, length int) []*Feature {
 	for i := 0; i < len(seq)-length; i++ {
 		targetSeq := seq[i : i+length]
 		for j := i + 1; j < len(seq)-length; j++ {
-			if targetSeq == seq[j:j+length] || targetSeq == ReverseComplement(seq[j:j+length]) {
+			if targetSeq == seq[j:j+length] || targetSeq == string(ReverseComplement2Bytes(seq[j:j+length])) {
 				repeat = append(
 					repeat,
 					&Feature{

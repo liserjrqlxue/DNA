@@ -142,7 +142,7 @@ func (p *Primer) String(strand string) string {
 	}
 	seq := p.Seq
 	if strand == "-" {
-		seq = ReverseComplement(seq)
+		seq = string(ReverseComplement2Bytes(seq))
 		p.DupGrate = math.Pow(Grate, float64(p.DupLink['C']))
 	} else {
 		p.DupGrate = math.Pow(Grate, float64(p.DupLink['G']))
@@ -208,7 +208,7 @@ func (p *Primer) CalCBE() error {
 		sequence = p.Seq
 	)
 	if p.RC {
-		sequence = ReverseComplement(p.Seq)
+		sequence = string(ReverseComplement2Bytes(p.Seq))
 	}
 	data := map[string]string{
 		"name":     name,
