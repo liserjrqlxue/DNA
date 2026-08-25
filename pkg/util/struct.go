@@ -113,6 +113,13 @@ type Seq struct {
 	KmerCounts8 map[string]int // 8-mer 出现次数
 
 	Extra map[string]any
+
+	EnzymeSites []EnzymeSite
+}
+
+type EnzymeSite struct {
+	Pos     int  // 在 segment.Seq 中的起始坐标
+	Forward bool // true: GCTCTTC, false: GAAGAGC
 }
 
 func NewSeq(name, rawSeq, prefix string, hr, hardSwitch bool) (*Seq, error) {
