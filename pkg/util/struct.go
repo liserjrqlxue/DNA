@@ -122,6 +122,27 @@ type EnzymeSite struct {
 	Forward bool // true: GCTCTTC, false: GAAGAGC
 }
 
+func scanEnzymeSites(seq string) []EnzymeSite {
+	var sites []EnzymeSite
+	// 正向 GCTCTTC
+	for i := 0; i+6 <= len(seq); i++ {
+		if seq[i:i+6] == "GCTCTTC" {
+			sites = append(sites, EnzymeSite{Pos: i, Forward: true})
+		}
+	}
+	// 反向 GAAGAGC
+	for i := 0; i+6 <= len(seq); i++ {
+		if seq[i:i+6] == "GAAGAGC" {
+			sites = append(sites, EnzymeSite{Pos: i, Forward: false})
+		}
+	}
+	return sites
+}
+
+func (s *Seq) ScanEnzymeSites() {
+	s.EnzymeSites = scanEnzymeSites(s.RawSeq)
+}
+
 func NewSeq(name, rawSeq, prefix string, hr, hardSwitch bool) (*Seq, error) {
 	var s = &Seq{
 		Name:         name,
