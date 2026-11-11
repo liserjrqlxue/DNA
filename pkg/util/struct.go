@@ -236,10 +236,27 @@ func (s *Seq) Calculator() {
 }
 
 func (s *Seq) CalculatorKmerGC() {
-	var (
-		GC     [SeqLengthMax]float64
-		gcType []int
-	)
+	// 原实现：var GC [SeqLengthMax]float64（102400×8B = 800 KiB 固定数组），
+	// 再用 GC[:len(s.Seq)-s.Kmer+1] 把整个数组挂到 s.KmerGC 上，导致每条序列
+	// 常驻 800 KiB，而实际只用到前 len(s.Seq)-s.Kmer+1 个位置（典型序列约 11 KiB）。
+	//
+	// array -> slice 的三个注意点：
+	//  1. 必须按 len(s.Seq) 分配，不能按 len(s.Seq)-s.Kmer+1 分配：
+	//     循环里 GC[j] 的 j 上界是 i（最大 len(s.Seq)-1），只分配切片长度会越界，
+	//     且会改变末尾 Kmer-1 个位置的累加，进而影响 KmerGC / LowGC / HighGC。
+	//     按 len(s.Seq) 分配时，KmerGC 覆盖区间的数值与原实现逐位一致。
+	//  2. 原固定数组隐含 102400nt 的长度上限，超长序列会数组越界 panic；
+	//     按实际长度分配后不再有该上限（行为改善，正常输入不受影响）。
+	//  3. 极短序列（len(s.Seq) < s.Kmer-1）原本会在 GC[:负数] 处 panic；
+	//     这里显式返回空结果，避免 panic。长度 >= Kmer 时行为完全不变。
+	//
+	// SeqLengthMax 常量保留（导出常量，可能被外部引用），但不再用于此处分配。
+	if len(s.Seq) < s.Kmer-1 {
+		s.KmerGC = nil
+		return
+	}
+	GC := make([]float64, len(s.Seq))
+	var gcType []int
 	for i, c := range s.Seq {
 		if c == 'C' || c == 'G' {
 			for j := Max(0, i-s.Kmer); j <= i; j++ {
