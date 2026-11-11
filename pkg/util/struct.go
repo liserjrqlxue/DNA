@@ -175,6 +175,7 @@ func (s *Seq) Init() error {
 
 	s.Seq = UniversalUpperPrimer + s.RawSeq + UniversalLowerPrimer
 	s.Length = len(s.Seq)
+	s.Start = len(UniversalUpperPrimer)
 	s.SegmentLeftLimit = len(UniversalUpperPrimer)
 	s.SegmentRightLimit = s.Length - len(UniversalLowerPrimer)
 
